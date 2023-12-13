@@ -87,7 +87,52 @@ __main
         ldr r0, = BROCHE4_5			
         str r0, [r6]
 		
-		 mov r2, #0x000       					;; pour eteindre LED
+		mov r2, #0x000       					;; pour eteindre LED
+		
+		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper droit
+
+		ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
+        ldr r0, = BROCHE0	
+        str r0, [r7]
+		
+		ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
+        ldr r0, = BROCHE0	
+        str r0, [r7]     
+		
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
+		
+		;vvvvvvvvvvvvvvvvvvvvvvvFin configuration bumper droit 
+		 
+		 ; allumer la led broche 4 (BROCHE4_5)
+		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000
+		
+		ldr r6, = GPIO_PORTF_BASE + (BROCHE4_5<<2)  ;; @data Register = @base + (mask<<2) ==> LED1
+		
+		;vvvvvvvvvvvvvvvvvvvvvvvFin configuration LED ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CLIGNOTTEMENT
+
+		str r3, [r6]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+		
+ReadState
+
+		ldr r10,[r7]
+		CMP r10,#0x00
+		BNE ReadState
+
+loopa
+        str r2, [r6]    						;; Eteint LED car r2 = 0x00      
+        ldr r1, = DUREE 						;; pour la duree de la boucle d'attente1 (wait1)
+
+waita	subs r1, #1
+        bne waita
+
+        str r3, [r6]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+        ldr r1, = DUREE							;; pour la duree de la boucle d'attente2 (wait2)
+
+waitb   subs r1, #1
+        bne waitb
+
+        b loopa     
+
 
 		;; BL Branchement vers un lien (sous programme)
 
