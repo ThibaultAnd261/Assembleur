@@ -29,6 +29,9 @@ GPIO_PORTF_BASE		EQU		0x40025000	; GPIO Port F (APB) base: 0x4002.5000 (p416 dat
 ; The GPIODATA register is the data register
 GPIO_PORTD_BASE		EQU		0x40007000		; GPIO Port D (APB) base: 0x4000.7000 (p416 datasheet de lm3s9B92.pdf)
 
+; The GPIODATA register is the data register
+GPIO_PORTE_BASE		EQU		0x40024000	; GPIO Port F (APB) base: 0x4002.5000 (p416 datasheet de lm3s9B92.pdf)
+
 ; configure the corresponding pin to be an output
 ; all GPIO pins are inputs by default
 GPIO_O_DIR   		EQU 	0x00000400  ; GPIO Direction (p417 datasheet de lm3s9B92.pdf)
@@ -48,6 +51,10 @@ GPIO_I_PUR   		EQU 	0x00000510  ; GPIO Pull-Up (p432 datasheet de lm3s9B92.pdf)
 BROCHE4_5			EQU		0x30		; led1 & led2 sur broche 4 et 5
 
 BROCHE6				EQU 	0x40		; bouton poussoir 1
+	
+BROCHE0				EQU		0x01		;bumper droit
+
+BROCHE1				EQU		0x02		;bumper gauche
 
 ; blinking frequency
 DUREE   			EQU     0x002FFFFF
@@ -71,7 +78,10 @@ __main
 		nop	   									;; tres tres important....
 		nop	   
 		nop	   				;; pas necessaire en simu ou en debbug step by step...
-
+		
+		
+		; Configure les PWM + GPIO
+		BL	MOTEUR_INIT	
 
 		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION LED
 
@@ -101,7 +111,7 @@ __main
 		
 		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
 		
-		;vvvvvvvvvvvvvvvvvvvvvvvFin configuration bumper droit 
+		
 		 
 		 ; allumer la led broche 4 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000
@@ -110,67 +120,75 @@ __main
 		
 		;vvvvvvvvvvvvvvvvvvvvvvvFin configuration LED ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CLIGNOTTEMENT
 
-		str r3, [r6]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
-		
-ReadState
-
-		ldr r10,[r7]
-		CMP r10,#0x00
-		BNE ReadState
-
-loopa
-        str r2, [r6]    						;; Eteint LED car r2 = 0x00      
-        ldr r1, = DUREE 						;; pour la duree de la boucle d'attente1 (wait1)
-
-waita	subs r1, #1
-        bne waita
-
-        str r3, [r6]  							;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
-        ldr r1, = DUREE							;; pour la duree de la boucle d'attente2 (wait2)
-
-waitb   subs r1, #1
-        bne waitb
-
-        b loopa     
-
-
-		;; BL Branchement vers un lien (sous programme)
-
-		; Configure les PWM + GPIO
-		BL	MOTEUR_INIT	   		   
+		str r3, [r6]		;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
 		
 		; Activer les deux moteurs droit et gauche
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
-
-		; Boucle de pilotage des 2 Moteurs (Evalbot tourne sur lui même)
+		
 loop	
 		; Evalbot avance droit devant
 		BL	MOTEUR_DROIT_AVANT
 		BL	MOTEUR_GAUCHE_AVANT
 		
-		; Avancement pendant une période (deux WAIT)
-		BL	WAITR	; BL (Branchement vers le lien WAIT); possibilité de retour à la suite avec (BX LR)
-		BL	WAITR
+		BL	WAIT
 		
-		; Rotation à droite de l'Evalbot pendant une demi-période (1 seul WAIT)
-		BL	MOTEUR_DROIT_ARRIERE   ; MOTEUR_DROIT_INVERSE
-		BL	WAITR
-
 		b	loop
+		
+BD_active
+		
+		BL	MOTEUR_DROIT_ARRIERE
+		BL	MOTEUR_GAUCHE_ARRIERE
+		BL	WAITar
+		;BL	MOTEUR_GAUCHE_ARRIERE
+		;BL	WAITtourne
+		
+BG_active
+		
+		BL	MOTEUR_DROIT_ARRIERE
+		BL	MOTEUR_GAUCHE_ARRIERE
+		BL	WAITar
+		;BL	MOTEUR_DROIT_ARRIERE
+		;BL	WAITtourne
+		
 
-		;; Boucle d'attente pour le recul
-WAITR	ldr r1, =0xAFFFFF 
-wait1	subs r1, #1
+
+
+
+		   		
+
+		;; Boucle d'attente pour la marche avant
+WAIT	ldr r1, =0xAFFFFF 
+wait1	
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+		ldr r10,[r7]
+		CMP r10,#0x00
+		BEQ BD_active
+
+		subs r1, #1
         bne wait1
 		
 		;; retour à la suite du lien de branchement
 		BX	LR
 		
-;; Boucle d'attente lors de la rotation
-WAITT	ldr r1, =0xAFFFFF 
-wait2	subs r1, #1
+;; Boucle d'attente lors la marche arrière
+WAITar	ldr r1, =0xAFFFFF
+wait2	
+		subs r1, #1
         bne wait2
+		
+		;; retour à la suite du lien de branchement
+		BX	LR
+
+		NOP
+        END
+			
+;; Boucle d'attente lors la marche arrière
+WAITtourne	
+		ldr r1, =0xAFFFFF
+wait3	
+		subs r1, #1
+        bne wait3
 		
 		;; retour à la suite du lien de branchement
 		BX	LR
