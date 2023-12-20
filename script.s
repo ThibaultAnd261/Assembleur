@@ -113,20 +113,16 @@ __main
 		
 		
 		 
-		 ; allumer la led broche 4 (BROCHE4_5)
-		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000
 		
+		
+		
+loop	
+		mov r3, #0		;; Allume LED1&2 portF broche 4&5 : 00110000		
 		ldr r6, = GPIO_PORTF_BASE + (BROCHE4_5<<2)  ;; @data Register = @base + (mask<<2) ==> LED1
-		
-		;vvvvvvvvvvvvvvvvvvvvvvvFin configuration LED ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CLIGNOTTEMENT
-
-		str r3, [r6]		;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
-		
+		str r3, [r6]		;mov	r3, #0x000
 		; Activer les deux moteurs droit et gauche
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
-		
-loop	
 		; Evalbot avance droit devant
 		BL	MOTEUR_DROIT_AVANT
 		BL	MOTEUR_GAUCHE_AVANT
@@ -140,16 +136,18 @@ BD_active
 		BL	MOTEUR_DROIT_ARRIERE
 		BL	MOTEUR_GAUCHE_ARRIERE
 		BL	WAITar
-		;BL	MOTEUR_GAUCHE_ARRIERE
-		;BL	WAITtourne
+		BL	MOTEUR_DROIT_OFF
+		BL	MOTEUR_GAUCHE_ARRIERE
+		BL	WAITtourne
+		b	loop
 		
 BG_active
 		
 		BL	MOTEUR_DROIT_ARRIERE
 		BL	MOTEUR_GAUCHE_ARRIERE
 		BL	WAITar
-		;BL	MOTEUR_DROIT_ARRIERE
-		;BL	WAITtourne
+		BL	MOTEUR_DROIT_ARRIERE
+		BL	WAITtourne
 		
 
 
@@ -172,16 +170,19 @@ wait1
 		BX	LR
 		
 ;; Boucle d'attente lors la marche arrière
-WAITar	ldr r1, =0xAFFFFF
+WAITar	ldr r1, =0x1BFFFF
 wait2	
+		; allumer la led broche 4 et 5 (BROCHE4_5)
+		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		
+		ldr r6, = GPIO_PORTF_BASE + (BROCHE4_5<<2)  ;; @data Register = @base + (mask<<2) ==> LED1
+		str r3, [r6]		;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
+		
 		subs r1, #1
         bne wait2
 		
 		;; retour à la suite du lien de branchement
 		BX	LR
 
-		NOP
-        END
 			
 ;; Boucle d'attente lors la marche arrière
 WAITtourne	
