@@ -215,40 +215,40 @@ ARM Macro Assembler    Page 4
   102 0000002E         ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper droi
                        t
   103 0000002E         
-  104 0000002E 4F28            ldr              r7, = GPIO_PORTE_BASE+GPIO_I_PU
+  104 0000002E         ;ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR ;; Pul_up 
+  105 0000002E         ;ldr r0, = BROCHE0 
+  106 0000002E         ;str r0, [r7]
+  107 0000002E         
+  108 0000002E         ;ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN ;; Enable Digital 
+                       Function 
+  109 0000002E         ;ldr r0, = BROCHE0 
+  110 0000002E         ;str r0, [r7]     
+  111 0000002E         
+  112 0000002E         ;ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)  ;; @data Regi
+                       ster = @base + (mask<<2) ==> bumper
+  113 0000002E         
+  114 0000002E         
+  115 0000002E         ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper gauc
+                       he
+  116 0000002E         
+  117 0000002E 4F28            ldr              r7, = GPIO_PORTE_BASE+GPIO_I_PU
 R 
                                                             ;; Pul_up 
-  105 00000030 F04F 0001       ldr              r0, = BROCHE0
-  106 00000034 6038            str              r0, [r7]
-  107 00000036         
-  108 00000036 4F27            ldr              r7, = GPIO_PORTE_BASE+GPIO_O_DE
+  118 00000030 F04F 0002       ldr              r0, = BROCHE1
+  119 00000034 6038            str              r0, [r7]
+  120 00000036         
+  121 00000036 4F27            ldr              r7, = GPIO_PORTE_BASE+GPIO_O_DE
 N 
                                                             ;; Enable Digital F
                                                             unction 
-  109 00000038 F04F 0001       ldr              r0, = BROCHE0
-  110 0000003C 6038            str              r0, [r7]
-  111 0000003E         
-  112 0000003E 4F26            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
-0<<2) 
+  122 00000038 F04F 0002       ldr              r0, = BROCHE1
+  123 0000003C 6038            str              r0, [r7]
+  124 0000003E         
+  125 0000003E 4F26            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
+1<<2) 
                                                             ;; @data Register =
                                                              @base + (mask<<2) 
                                                             ==> bumper
-  113 00000040         
-  114 00000040         
-  115 00000040         ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper gauc
-                       he
-  116 00000040         
-  117 00000040         ;ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR ;; Pul_up 
-  118 00000040         ;ldr r0, = BROCHE1 
-  119 00000040         ;str r0, [r7]
-  120 00000040         
-  121 00000040         ;ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN ;; Enable Digital 
-                       Function 
-  122 00000040         ;ldr r0, = BROCHE1 
-  123 00000040         ;str r0, [r7]     
-  124 00000040         
-  125 00000040         ;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)  ;; @data Regi
-                       ster = @base + (mask<<2) ==> bumper
   126 00000040         
   127 00000040         
   128 00000040         
@@ -308,72 +308,74 @@ ARM Macro Assembler    Page 5
   170 00000092         ;; Boucle d'attente pour la marche avant
   171 00000092 4913    WAIT    ldr              r1, =0xAFFFFF
   172 00000094         wait1
-  173 00000094 4F10            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
-0<<2)
-  174 00000096 F8D7 A000       ldr              r10,[r7]
-  175 0000009A F1BA 0F00       CMP              r10,#0x00
-  176 0000009E D0DE            BEQ              BD_actif
-  177 000000A0         
-  178 000000A0         ;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
-  179 000000A0         ;ldr r10,[r7]
-  180 000000A0         ;CMP r10,#0x00
-  181 000000A0         ;BEQ BG_actif
+  173 00000094         ;ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+  174 00000094         ;ldr r10,[r7]
+  175 00000094         ;CMP r10,#0x00
+  176 00000094         ;BEQ BD_actif
+  177 00000094         
+  178 00000094 4F10            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
+1<<2)
+  179 00000096 F8D7 A000       ldr              r10,[r7]
+  180 0000009A F1BA 0F00       CMP              r10,#0x00
+  181 0000009E D0EB            BEQ              BG_actif
   182 000000A0         
-  183 000000A0 3901            subs             r1, #1
-  184 000000A2 D1F7            bne              wait1
-  185 000000A4         
-  186 000000A4         ;; retour à la suite du lien de branchement
+  183 000000A0         
+  184 000000A0         
+  185 000000A0 3901            subs             r1, #1
+  186 000000A2 D1F7            bne              wait1
 
 
 
 ARM Macro Assembler    Page 6 
 
 
-  187 000000A4 4770            BX               LR
-  188 000000A6         
-  189 000000A6         ;; Boucle d'attente lors la marche arrière
-  190 000000A6 490F    WAITar  ldr              r1, =0x1AFFFF
-  191 000000A8         wait2
-  192 000000A8         ; allumer la led broche 4 et 5 (BROCHE4_5)
-  193 000000A8 F04F 0330       mov              r3, #BROCHE4_5 ;; Allume LED1&2
+  187 000000A4         
+  188 000000A4         ;; retour à la suite du lien de branchement
+  189 000000A4 4770            BX               LR
+  190 000000A6         
+  191 000000A6         ;; Boucle d'attente lors la marche arrière
+  192 000000A6 490F    WAITar  ldr              r1, =0x1AFFFF
+  193 000000A8         wait2
+  194 000000A8         ; allumer la led broche 4 et 5 (BROCHE4_5)
+  195 000000A8 F04F 0330       mov              r3, #BROCHE4_5 ;; Allume LED1&2
                                                              portF broche 4&5 :
                                                              00110000  
-  194 000000AC 4E0B            ldr              r6, = GPIO_PORTF_BASE + (BROCHE
+  196 000000AC 4E0B            ldr              r6, = GPIO_PORTF_BASE + (BROCHE
 4_5<<2) 
                                                             ;; @data Register =
                                                              @base + (mask<<2) 
                                                             ==> LED1
-  195 000000AE 6033            str              r3, [r6]    ;; Allume LED1&2 po
+  197 000000AE 6033            str              r3, [r6]    ;; Allume LED1&2 po
                                                             rtF broche 4&5 : 00
                                                             110000 (contenu de 
                                                             r3)
-  196 000000B0         
-  197 000000B0 3901            subs             r1, #1
-  198 000000B2 D1F9            bne              wait2
-  199 000000B4         
-  200 000000B4         ;; retour à la suite du lien de branchement
-  201 000000B4 4770            BX               LR
-  202 000000B6         
-  203 000000B6         
-  204 000000B6         ;; Boucle d'attente lors la marche arrière
-  205 000000B6         WAITtourne
-  206 000000B6 490A            ldr              r1, =0xAFFFFF
-  207 000000B8         wait3
-  208 000000B8 3901            subs             r1, #1
-  209 000000BA D1FD            bne              wait3
-  210 000000BC         
-  211 000000BC         ;; retour à la suite du lien de branchement
-  212 000000BC 4770            BX               LR
-  213 000000BE         
-  214 000000BE BF00            NOP
-  215 000000C0                 END
+  198 000000B0         
+  199 000000B0 3901            subs             r1, #1
+  200 000000B2 D1F9            bne              wait2
+  201 000000B4         
+  202 000000B4         ;; retour à la suite du lien de branchement
+  203 000000B4 4770            BX               LR
+  204 000000B6         
+  205 000000B6         
+  206 000000B6         ;; Boucle d'attente lors la marche arrière
+  207 000000B6         WAITtourne
+  208 000000B6 490A            ldr              r1, =0xAFFFFF
+  209 000000B8         wait3
+  210 000000B8 3901            subs             r1, #1
+  211 000000BA D1FD            bne              wait3
+  212 000000BC         
+  213 000000BC         ;; retour à la suite du lien de branchement
+  214 000000BC 4770            BX               LR
+  215 000000BE         
+  216 000000BE BF00            NOP
+  217 000000C0                 END
               400FE108 
               40025400 
               4002551C 
               40025500 
               40024510 
               4002451C 
-              40024004 
+              40024008 
               400250C0 
               00AFFFFF 
               001AFFFF 
@@ -404,16 +406,16 @@ Symbol: BD_actif
    Definitions
       At line 144 in file script.s
    Uses
-      At line 176 in file script.s
-Comment: BD_actif used once
+      None
+Comment: BD_actif unused
 BG_actif 00000078
 
 Symbol: BG_actif
    Definitions
       At line 154 in file script.s
    Uses
-      None
-Comment: BG_actif unused
+      At line 181 in file script.s
+Comment: BG_actif used once
 WAIT 00000092
 
 Symbol: WAIT
@@ -426,7 +428,7 @@ WAITar 000000A6
 
 Symbol: WAITar
    Definitions
-      At line 190 in file script.s
+      At line 192 in file script.s
    Uses
       At line 148 in file script.s
       At line 158 in file script.s
@@ -435,7 +437,7 @@ WAITtourne 000000B6
 
 Symbol: WAITtourne
    Definitions
-      At line 205 in file script.s
+      At line 207 in file script.s
    Uses
       At line 151 in file script.s
       At line 161 in file script.s
@@ -470,23 +472,23 @@ Symbol: wait1
    Definitions
       At line 172 in file script.s
    Uses
-      At line 184 in file script.s
+      At line 186 in file script.s
 Comment: wait1 used once
 wait2 000000A8
 
 Symbol: wait2
    Definitions
-      At line 191 in file script.s
+      At line 193 in file script.s
    Uses
-      At line 198 in file script.s
+      At line 200 in file script.s
 Comment: wait2 used once
 wait3 000000B8
 
 Symbol: wait3
    Definitions
-      At line 207 in file script.s
-   Uses
       At line 209 in file script.s
+   Uses
+      At line 211 in file script.s
 Comment: wait3 used once
 11 symbols
 
@@ -501,19 +503,19 @@ Symbol: BROCHE0
    Definitions
       At line 55 in file script.s
    Uses
-      At line 105 in file script.s
-      At line 109 in file script.s
-      At line 112 in file script.s
-      At line 173 in file script.s
-
+      None
+Comment: BROCHE0 unused
 BROCHE1 00000002
 
 Symbol: BROCHE1
    Definitions
       At line 57 in file script.s
    Uses
-      None
-Comment: BROCHE1 unused
+      At line 118 in file script.s
+      At line 122 in file script.s
+      At line 125 in file script.s
+      At line 178 in file script.s
+
 BROCHE4_5 00000030
 
 Symbol: BROCHE4_5
@@ -524,8 +526,8 @@ Symbol: BROCHE4_5
       At line 93 in file script.s
       At line 97 in file script.s
       At line 131 in file script.s
-      At line 193 in file script.s
-      At line 194 in file script.s
+      At line 195 in file script.s
+      At line 196 in file script.s
 
 BROCHE6 00000040
 
@@ -549,7 +551,7 @@ Symbol: GPIO_I_PUR
    Definitions
       At line 48 in file script.s
    Uses
-      At line 104 in file script.s
+      At line 117 in file script.s
 Comment: GPIO_I_PUR used once
 GPIO_O_DEN 0000051C
 
@@ -564,7 +566,7 @@ Absolute symbols
       At line 45 in file script.s
    Uses
       At line 92 in file script.s
-      At line 108 in file script.s
+      At line 121 in file script.s
 
 GPIO_O_DIR 00000400
 
@@ -596,10 +598,10 @@ Symbol: GPIO_PORTE_BASE
    Definitions
       At line 33 in file script.s
    Uses
-      At line 104 in file script.s
-      At line 108 in file script.s
-      At line 112 in file script.s
-      At line 173 in file script.s
+      At line 117 in file script.s
+      At line 121 in file script.s
+      At line 125 in file script.s
+      At line 178 in file script.s
 
 GPIO_PORTF_BASE 40025000
 
@@ -611,7 +613,7 @@ Symbol: GPIO_PORTF_BASE
       At line 92 in file script.s
       At line 96 in file script.s
       At line 131 in file script.s
-      At line 194 in file script.s
+      At line 196 in file script.s
 
 SYSCTL_PERIPH_GPIO 400FE108
 

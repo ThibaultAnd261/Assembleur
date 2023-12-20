@@ -101,28 +101,28 @@ __main
 		
 		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper droit
 
-		ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
-        ldr r0, = BROCHE0	
-        str r0, [r7]
+		;ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
+        ;ldr r0, = BROCHE0	
+        ;str r0, [r7]
 		
-		ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
-        ldr r0, = BROCHE0	
-        str r0, [r7]     
+		;ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
+        ;ldr r0, = BROCHE0	
+        ;str r0, [r7]     
 		
-		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
+		;ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
 		
 		
 		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper gauche
 
-		;ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
-        ;ldr r0, = BROCHE1	
-        ;str r0, [r7]
+		ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
+        ldr r0, = BROCHE1	
+        str r0, [r7]
 		
-		;ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
-        ;ldr r0, = BROCHE1	
-        ;str r0, [r7]     
+		ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
+        ldr r0, = BROCHE1	
+        str r0, [r7]     
 		
-		;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
 		
 
 		
@@ -170,15 +170,17 @@ BG_actif
 		;; Boucle d'attente pour la marche avant
 WAIT	ldr r1, =0xAFFFFF 
 wait1	
-		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
-		ldr r10,[r7]
-		CMP r10,#0x00
-		BEQ BD_actif
-		
-		;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+		;ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
 		;ldr r10,[r7]
 		;CMP r10,#0x00
-		;BEQ BG_actif
+		;BEQ BD_actif
+		
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+		ldr r10,[r7]
+		CMP r10,#0x00
+		BEQ BG_actif
+		
+		
 
 		subs r1, #1
         bne wait1
