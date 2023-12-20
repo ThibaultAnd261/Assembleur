@@ -161,8 +161,8 @@ ARM Macro Assembler    Page 3
                                EQU              PWM_BASE+0x0A4
    60 00000000         
    61 00000000         
-   62 00000000 00000001 
-                       VITESSE EQU              0x001       ; Valeures plus pet
+   62 00000000 00000192 
+                       VITESSE EQU              0x192       ; Valeures plus pet
                                                             ites => Vitesse plu
                                                             s rapide exemple 0x
                                                             192
@@ -319,7 +319,7 @@ ARM Macro Assembler    Page 5
                                                             yclique : pour 10% 
                                                             => 1C2h si clock = 
                                                             0F42400
-  161 0000006A F04F 0001       mov              r0, #VITESSE
+  161 0000006A F44F 70C9       mov              r0, #VITESSE
   162 0000006E 6030            str              r0, [r6]
   163 00000070         
   164 00000070 4E4B            ldr              r6, =PWM0CMPB ;PWM0CMPB recoit 
@@ -398,7 +398,7 @@ ARM Macro Assembler    Page 7
                                                             yclique : pour 10% 
                                                             => 1C2h si clock = 
                                                             0F42400
-  200 000000A4 F04F 0001       mov              r0, #VITESSE
+  200 000000A4 F44F 70C9       mov              r0, #VITESSE
   201 000000A8 6030            str              r0, [r6]    ;*(int *)(0x4002800
                                                             0+0x058)=0x01C2;
   202 000000AA         
@@ -1073,7 +1073,7 @@ Symbol: SYSCTL_RCGC2
       At line 94 in file config.s
       At line 100 in file config.s
 
-VITESSE 00000001
+VITESSE 00000192
 
 Symbol: VITESSE
    Definitions

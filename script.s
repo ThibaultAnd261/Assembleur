@@ -112,9 +112,19 @@ __main
 		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
 		
 		
-		 
+		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper gauche
+
+		;ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
+        ;ldr r0, = BROCHE1	
+        ;str r0, [r7]
 		
+		;ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
+        ;ldr r0, = BROCHE1	
+        ;str r0, [r7]     
 		
+		;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
+		
+
 		
 loop	
 		mov r3, #0		;; Allume LED1&2 portF broche 4&5 : 00110000		
@@ -131,7 +141,7 @@ loop
 		
 		b	loop
 		
-BD_active
+BD_actif
 		
 		BL	MOTEUR_DROIT_ARRIERE
 		BL	MOTEUR_GAUCHE_ARRIERE
@@ -141,13 +151,15 @@ BD_active
 		BL	WAITtourne
 		b	loop
 		
-BG_active
+BG_actif
 		
 		BL	MOTEUR_DROIT_ARRIERE
 		BL	MOTEUR_GAUCHE_ARRIERE
 		BL	WAITar
+		BL	MOTEUR_GAUCHE_OFF
 		BL	MOTEUR_DROIT_ARRIERE
 		BL	WAITtourne
+		b	loop
 		
 
 
@@ -161,7 +173,12 @@ wait1
 		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
 		ldr r10,[r7]
 		CMP r10,#0x00
-		BEQ BD_active
+		BEQ BD_actif
+		
+		;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+		;ldr r10,[r7]
+		;CMP r10,#0x00
+		;BEQ BG_actif
 
 		subs r1, #1
         bne wait1
@@ -170,7 +187,7 @@ wait1
 		BX	LR
 		
 ;; Boucle d'attente lors la marche arrière
-WAITar	ldr r1, =0x1BFFFF
+WAITar	ldr r1, =0x1AFFFF
 wait2	
 		; allumer la led broche 4 et 5 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		

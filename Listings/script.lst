@@ -155,7 +155,7 @@ ARM Macro Assembler    Page 3
    70 00000000         ; ;; Enable the Port F & D peripheral clock   (p291 data
                        sheet de lm3s9B96.pdf)
    71 00000000         ; ;;         
-   72 00000000 4E2E            ldr              r6, = SYSCTL_PERIPH_GPIO 
+   72 00000000 4E2F            ldr              r6, = SYSCTL_PERIPH_GPIO 
                                                             ;; RCGC2
    73 00000002 F04F 0038       mov              r0, #0x00000038 ;; Enable clock
                                                              sur GPIO D et F où
@@ -180,7 +180,7 @@ ARM Macro Assembler    Page 3
    85 00000012         
    86 00000012         ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION LED
    87 00000012         
-   88 00000012 4E2B            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DI
+   88 00000012 4E2C            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DI
 R 
                                                             ;; 1 Pin du portF e
                                                             n sortie (broche 4 
@@ -188,7 +188,7 @@ R
    89 00000014 F04F 0030       ldr              r0, = BROCHE4_5
    90 00000018 6030            str              r0, [r6]
    91 0000001A         
-   92 0000001A 4E2A            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DE
+   92 0000001A 4E2B            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DE
 N 
                                                             ;; Enable Digital F
                                                             unction 
@@ -201,7 +201,7 @@ ARM Macro Assembler    Page 4
 
    94 00000020 6030            str              r0, [r6]
    95 00000022         
-   96 00000022 4E29            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DR
+   96 00000022 4E2A            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DR
 2R 
                                                             ;; Choix de l'inten
                                                             sité de sortie (2mA
@@ -215,139 +215,159 @@ ARM Macro Assembler    Page 4
   102 0000002E         ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper droi
                        t
   103 0000002E         
-  104 0000002E 4F27            ldr              r7, = GPIO_PORTE_BASE+GPIO_I_PU
+  104 0000002E 4F28            ldr              r7, = GPIO_PORTE_BASE+GPIO_I_PU
 R 
                                                             ;; Pul_up 
   105 00000030 F04F 0001       ldr              r0, = BROCHE0
   106 00000034 6038            str              r0, [r7]
   107 00000036         
-  108 00000036 4F26            ldr              r7, = GPIO_PORTE_BASE+GPIO_O_DE
+  108 00000036 4F27            ldr              r7, = GPIO_PORTE_BASE+GPIO_O_DE
 N 
                                                             ;; Enable Digital F
                                                             unction 
   109 00000038 F04F 0001       ldr              r0, = BROCHE0
   110 0000003C 6038            str              r0, [r7]
   111 0000003E         
-  112 0000003E 4F25            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
+  112 0000003E 4F26            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
 0<<2) 
                                                             ;; @data Register =
                                                              @base + (mask<<2) 
                                                             ==> bumper
   113 00000040         
   114 00000040         
-  115 00000040         
+  115 00000040         ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper gauc
+                       he
   116 00000040         
-  117 00000040         
-  118 00000040         
-  119 00000040         loop
-  120 00000040 F04F 0300       mov              r3, #0      ;; Allume LED1&2 po
+  117 00000040         ;ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR ;; Pul_up 
+  118 00000040         ;ldr r0, = BROCHE1 
+  119 00000040         ;str r0, [r7]
+  120 00000040         
+  121 00000040         ;ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN ;; Enable Digital 
+                       Function 
+  122 00000040         ;ldr r0, = BROCHE1 
+  123 00000040         ;str r0, [r7]     
+  124 00000040         
+  125 00000040         ;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)  ;; @data Regi
+                       ster = @base + (mask<<2) ==> bumper
+  126 00000040         
+  127 00000040         
+  128 00000040         
+  129 00000040         loop
+  130 00000040 F04F 0300       mov              r3, #0      ;; Allume LED1&2 po
                                                             rtF broche 4&5 : 00
                                                             110000  
-  121 00000044 4E24            ldr              r6, = GPIO_PORTF_BASE + (BROCHE
+  131 00000044 4E25            ldr              r6, = GPIO_PORTF_BASE + (BROCHE
 4_5<<2) 
-                                                            ;; @data Register =
-                                                             @base + (mask<<2) 
-                                                            ==> LED1
-  122 00000046 6033            str              r3, [r6]    ;mov r3, #0x000
-  123 00000048         ; Activer les deux moteurs droit et gauche
-  124 00000048 F7FF FFFE       BL               MOTEUR_DROIT_ON
-  125 0000004C F7FF FFFE       BL               MOTEUR_GAUCHE_ON
-  126 00000050         ; Evalbot avance droit devant
-  127 00000050 F7FF FFFE       BL               MOTEUR_DROIT_AVANT
-  128 00000054 F7FF FFFE       BL               MOTEUR_GAUCHE_AVANT
-  129 00000058         
-  130 00000058 F000 F818       BL               WAIT
-  131 0000005C         
 
 
 
 ARM Macro Assembler    Page 5 
 
 
-  132 0000005C E7F0            b                loop
-  133 0000005E         
-  134 0000005E         BD_active
-  135 0000005E         
-  136 0000005E F7FF FFFE       BL               MOTEUR_DROIT_ARRIERE
-  137 00000062 F7FF FFFE       BL               MOTEUR_GAUCHE_ARRIERE
-  138 00000066 F000 F81B       BL               WAITar
-  139 0000006A F7FF FFFE       BL               MOTEUR_DROIT_OFF
-  140 0000006E F7FF FFFE       BL               MOTEUR_GAUCHE_ARRIERE
-  141 00000072 F000 F81D       BL               WAITtourne
-  142 00000076 E7E3            b                loop
-  143 00000078         
-  144 00000078         BG_active
-  145 00000078         
-  146 00000078 F7FF FFFE       BL               MOTEUR_DROIT_ARRIERE
-  147 0000007C F7FF FFFE       BL               MOTEUR_GAUCHE_ARRIERE
-  148 00000080 F000 F80E       BL               WAITar
-  149 00000084 F7FF FFFE       BL               MOTEUR_DROIT_ARRIERE
-  150 00000088 F000 F812       BL               WAITtourne
-  151 0000008C         
-  152 0000008C         
-  153 0000008C         
-  154 0000008C         
-  155 0000008C         
-  156 0000008C         
-  157 0000008C         
-  158 0000008C         ;; Boucle d'attente pour la marche avant
-  159 0000008C 4913    WAIT    ldr              r1, =0xAFFFFF
-  160 0000008E         wait1
-  161 0000008E 4F11            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
-0<<2)
-  162 00000090 F8D7 A000       ldr              r10,[r7]
-  163 00000094 F1BA 0F00       CMP              r10,#0x00
-  164 00000098 D0E1            BEQ              BD_active
-  165 0000009A         
-  166 0000009A 3901            subs             r1, #1
-  167 0000009C D1F7            bne              wait1
-  168 0000009E         
-  169 0000009E         ;; retour à la suite du lien de branchement
-  170 0000009E 4770            BX               LR
-  171 000000A0         
-  172 000000A0         ;; Boucle d'attente lors la marche arrière
-  173 000000A0 490F    WAITar  ldr              r1, =0x1BFFFF
-  174 000000A2         wait2
-  175 000000A2         ; allumer la led broche 4 et 5 (BROCHE4_5)
-  176 000000A2 F04F 0330       mov              r3, #BROCHE4_5 ;; Allume LED1&2
-                                                             portF broche 4&5 :
-                                                             00110000  
-  177 000000A6 4E0C            ldr              r6, = GPIO_PORTF_BASE + (BROCHE
-4_5<<2) 
                                                             ;; @data Register =
                                                              @base + (mask<<2) 
                                                             ==> LED1
-  178 000000A8 6033            str              r3, [r6]    ;; Allume LED1&2 po
-                                                            rtF broche 4&5 : 00
-                                                            110000 (contenu de 
-                                                            r3)
-  179 000000AA         
-  180 000000AA 3901            subs             r1, #1
+  132 00000046 6033            str              r3, [r6]    ;mov r3, #0x000
+  133 00000048         ; Activer les deux moteurs droit et gauche
+  134 00000048 F7FF FFFE       BL               MOTEUR_DROIT_ON
+  135 0000004C F7FF FFFE       BL               MOTEUR_GAUCHE_ON
+  136 00000050         ; Evalbot avance droit devant
+  137 00000050 F7FF FFFE       BL               MOTEUR_DROIT_AVANT
+  138 00000054 F7FF FFFE       BL               MOTEUR_GAUCHE_AVANT
+  139 00000058         
+  140 00000058 F000 F81B       BL               WAIT
+  141 0000005C         
+  142 0000005C E7F0            b                loop
+  143 0000005E         
+  144 0000005E         BD_actif
+  145 0000005E         
+  146 0000005E F7FF FFFE       BL               MOTEUR_DROIT_ARRIERE
+  147 00000062 F7FF FFFE       BL               MOTEUR_GAUCHE_ARRIERE
+  148 00000066 F000 F81E       BL               WAITar
+  149 0000006A F7FF FFFE       BL               MOTEUR_DROIT_OFF
+  150 0000006E F7FF FFFE       BL               MOTEUR_GAUCHE_ARRIERE
+  151 00000072 F000 F820       BL               WAITtourne
+  152 00000076 E7E3            b                loop
+  153 00000078         
+  154 00000078         BG_actif
+  155 00000078         
+  156 00000078 F7FF FFFE       BL               MOTEUR_DROIT_ARRIERE
+  157 0000007C F7FF FFFE       BL               MOTEUR_GAUCHE_ARRIERE
+  158 00000080 F000 F811       BL               WAITar
+  159 00000084 F7FF FFFE       BL               MOTEUR_GAUCHE_OFF
+  160 00000088 F7FF FFFE       BL               MOTEUR_DROIT_ARRIERE
+  161 0000008C F000 F813       BL               WAITtourne
+  162 00000090 E7D6            b                loop
+  163 00000092         
+  164 00000092         
+  165 00000092         
+  166 00000092         
+  167 00000092         
+  168 00000092         
+  169 00000092         
+  170 00000092         ;; Boucle d'attente pour la marche avant
+  171 00000092 4913    WAIT    ldr              r1, =0xAFFFFF
+  172 00000094         wait1
+  173 00000094 4F10            ldr              r7, = GPIO_PORTE_BASE + (BROCHE
+0<<2)
+  174 00000096 F8D7 A000       ldr              r10,[r7]
+  175 0000009A F1BA 0F00       CMP              r10,#0x00
+  176 0000009E D0DE            BEQ              BD_actif
+  177 000000A0         
+  178 000000A0         ;ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+  179 000000A0         ;ldr r10,[r7]
+  180 000000A0         ;CMP r10,#0x00
+  181 000000A0         ;BEQ BG_actif
+  182 000000A0         
+  183 000000A0 3901            subs             r1, #1
+  184 000000A2 D1F7            bne              wait1
+  185 000000A4         
+  186 000000A4         ;; retour à la suite du lien de branchement
 
 
 
 ARM Macro Assembler    Page 6 
 
 
-  181 000000AC D1F9            bne              wait2
-  182 000000AE         
-  183 000000AE         ;; retour à la suite du lien de branchement
-  184 000000AE 4770            BX               LR
-  185 000000B0         
-  186 000000B0         
-  187 000000B0         ;; Boucle d'attente lors la marche arrière
-  188 000000B0         WAITtourne
-  189 000000B0 490A            ldr              r1, =0xAFFFFF
-  190 000000B2         wait3
-  191 000000B2 3901            subs             r1, #1
-  192 000000B4 D1FD            bne              wait3
-  193 000000B6         
-  194 000000B6         ;; retour à la suite du lien de branchement
-  195 000000B6 4770            BX               LR
-  196 000000B8         
-  197 000000B8 BF00            NOP
-  198 000000BA                 END
-              00 00 400FE108 
+  187 000000A4 4770            BX               LR
+  188 000000A6         
+  189 000000A6         ;; Boucle d'attente lors la marche arrière
+  190 000000A6 490F    WAITar  ldr              r1, =0x1AFFFF
+  191 000000A8         wait2
+  192 000000A8         ; allumer la led broche 4 et 5 (BROCHE4_5)
+  193 000000A8 F04F 0330       mov              r3, #BROCHE4_5 ;; Allume LED1&2
+                                                             portF broche 4&5 :
+                                                             00110000  
+  194 000000AC 4E0B            ldr              r6, = GPIO_PORTF_BASE + (BROCHE
+4_5<<2) 
+                                                            ;; @data Register =
+                                                             @base + (mask<<2) 
+                                                            ==> LED1
+  195 000000AE 6033            str              r3, [r6]    ;; Allume LED1&2 po
+                                                            rtF broche 4&5 : 00
+                                                            110000 (contenu de 
+                                                            r3)
+  196 000000B0         
+  197 000000B0 3901            subs             r1, #1
+  198 000000B2 D1F9            bne              wait2
+  199 000000B4         
+  200 000000B4         ;; retour à la suite du lien de branchement
+  201 000000B4 4770            BX               LR
+  202 000000B6         
+  203 000000B6         
+  204 000000B6         ;; Boucle d'attente lors la marche arrière
+  205 000000B6         WAITtourne
+  206 000000B6 490A            ldr              r1, =0xAFFFFF
+  207 000000B8         wait3
+  208 000000B8 3901            subs             r1, #1
+  209 000000BA D1FD            bne              wait3
+  210 000000BC         
+  211 000000BC         ;; retour à la suite du lien de branchement
+  212 000000BC 4770            BX               LR
+  213 000000BE         
+  214 000000BE BF00            NOP
+  215 000000C0                 END
+              400FE108 
               40025400 
               4002551C 
               40025500 
@@ -356,7 +376,7 @@ ARM Macro Assembler    Page 6
               40024004 
               400250C0 
               00AFFFFF 
-              001BFFFF 
+              001AFFFF 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\script.d -o.\objects\script.o -I.\RTE\_Target_1 -IC:\Use
 rs\antoi\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include -IC:\Users\
@@ -378,47 +398,47 @@ Symbol: .text
    Uses
       None
 Comment: .text unused
-BD_active 0000005E
+BD_actif 0000005E
 
-Symbol: BD_active
-   Definitions
-      At line 134 in file script.s
-   Uses
-      At line 164 in file script.s
-Comment: BD_active used once
-BG_active 00000078
-
-Symbol: BG_active
+Symbol: BD_actif
    Definitions
       At line 144 in file script.s
    Uses
+      At line 176 in file script.s
+Comment: BD_actif used once
+BG_actif 00000078
+
+Symbol: BG_actif
+   Definitions
+      At line 154 in file script.s
+   Uses
       None
-Comment: BG_active unused
-WAIT 0000008C
+Comment: BG_actif unused
+WAIT 00000092
 
 Symbol: WAIT
    Definitions
-      At line 159 in file script.s
+      At line 171 in file script.s
    Uses
-      At line 130 in file script.s
+      At line 140 in file script.s
 Comment: WAIT used once
-WAITar 000000A0
+WAITar 000000A6
 
 Symbol: WAITar
    Definitions
-      At line 173 in file script.s
+      At line 190 in file script.s
    Uses
-      At line 138 in file script.s
       At line 148 in file script.s
+      At line 158 in file script.s
 
-WAITtourne 000000B0
+WAITtourne 000000B6
 
 Symbol: WAITtourne
    Definitions
-      At line 188 in file script.s
+      At line 205 in file script.s
    Uses
-      At line 141 in file script.s
-      At line 150 in file script.s
+      At line 151 in file script.s
+      At line 161 in file script.s
 
 __main 00000000
 
@@ -438,34 +458,35 @@ Relocatable symbols
 
 Symbol: loop
    Definitions
-      At line 119 in file script.s
+      At line 129 in file script.s
    Uses
-      At line 132 in file script.s
       At line 142 in file script.s
+      At line 152 in file script.s
+      At line 162 in file script.s
 
-wait1 0000008E
+wait1 00000094
 
 Symbol: wait1
    Definitions
-      At line 160 in file script.s
+      At line 172 in file script.s
    Uses
-      At line 167 in file script.s
+      At line 184 in file script.s
 Comment: wait1 used once
-wait2 000000A2
+wait2 000000A8
 
 Symbol: wait2
    Definitions
-      At line 174 in file script.s
+      At line 191 in file script.s
    Uses
-      At line 181 in file script.s
+      At line 198 in file script.s
 Comment: wait2 used once
-wait3 000000B2
+wait3 000000B8
 
 Symbol: wait3
    Definitions
-      At line 190 in file script.s
+      At line 207 in file script.s
    Uses
-      At line 192 in file script.s
+      At line 209 in file script.s
 Comment: wait3 used once
 11 symbols
 
@@ -483,7 +504,7 @@ Symbol: BROCHE0
       At line 105 in file script.s
       At line 109 in file script.s
       At line 112 in file script.s
-      At line 161 in file script.s
+      At line 173 in file script.s
 
 BROCHE1 00000002
 
@@ -502,9 +523,9 @@ Symbol: BROCHE4_5
       At line 89 in file script.s
       At line 93 in file script.s
       At line 97 in file script.s
-      At line 121 in file script.s
-      At line 176 in file script.s
-      At line 177 in file script.s
+      At line 131 in file script.s
+      At line 193 in file script.s
+      At line 194 in file script.s
 
 BROCHE6 00000040
 
@@ -578,7 +599,7 @@ Symbol: GPIO_PORTE_BASE
       At line 104 in file script.s
       At line 108 in file script.s
       At line 112 in file script.s
-      At line 161 in file script.s
+      At line 173 in file script.s
 
 GPIO_PORTF_BASE 40025000
 
@@ -589,8 +610,8 @@ Symbol: GPIO_PORTF_BASE
       At line 88 in file script.s
       At line 92 in file script.s
       At line 96 in file script.s
-      At line 121 in file script.s
-      At line 177 in file script.s
+      At line 131 in file script.s
+      At line 194 in file script.s
 
 SYSCTL_PERIPH_GPIO 400FE108
 
@@ -619,9 +640,9 @@ Symbol: MOTEUR_DROIT_ARRIERE
    Definitions
       At line 14 in file script.s
    Uses
-      At line 136 in file script.s
       At line 146 in file script.s
-      At line 149 in file script.s
+      At line 156 in file script.s
+      At line 160 in file script.s
 
 MOTEUR_DROIT_AVANT 00000000
 
@@ -629,7 +650,7 @@ Symbol: MOTEUR_DROIT_AVANT
    Definitions
       At line 13 in file script.s
    Uses
-      At line 127 in file script.s
+      At line 137 in file script.s
 Comment: MOTEUR_DROIT_AVANT used once
 MOTEUR_DROIT_INVERSE 00000000
 
@@ -645,7 +666,7 @@ Symbol: MOTEUR_DROIT_OFF
    Definitions
       At line 12 in file script.s
    Uses
-      At line 139 in file script.s
+      At line 149 in file script.s
 Comment: MOTEUR_DROIT_OFF used once
 MOTEUR_DROIT_ON 00000000
 
@@ -653,7 +674,7 @@ Symbol: MOTEUR_DROIT_ON
    Definitions
       At line 11 in file script.s
    Uses
-      At line 124 in file script.s
+      At line 134 in file script.s
 Comment: MOTEUR_DROIT_ON used once
 MOTEUR_GAUCHE_ARRIERE 00000000
 
@@ -661,9 +682,9 @@ Symbol: MOTEUR_GAUCHE_ARRIERE
    Definitions
       At line 20 in file script.s
    Uses
-      At line 137 in file script.s
-      At line 140 in file script.s
       At line 147 in file script.s
+      At line 150 in file script.s
+      At line 157 in file script.s
 
 MOTEUR_GAUCHE_AVANT 00000000
 
@@ -671,7 +692,7 @@ Symbol: MOTEUR_GAUCHE_AVANT
    Definitions
       At line 19 in file script.s
    Uses
-      At line 128 in file script.s
+      At line 138 in file script.s
 
 
 
@@ -693,15 +714,15 @@ Symbol: MOTEUR_GAUCHE_OFF
    Definitions
       At line 18 in file script.s
    Uses
-      None
-Comment: MOTEUR_GAUCHE_OFF unused
+      At line 159 in file script.s
+Comment: MOTEUR_GAUCHE_OFF used once
 MOTEUR_GAUCHE_ON 00000000
 
 Symbol: MOTEUR_GAUCHE_ON
    Definitions
       At line 17 in file script.s
    Uses
-      At line 125 in file script.s
+      At line 135 in file script.s
 Comment: MOTEUR_GAUCHE_ON used once
 MOTEUR_INIT 00000000
 
