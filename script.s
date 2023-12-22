@@ -55,6 +55,8 @@ BROCHE6				EQU 	0x40		; bouton poussoir 1
 BROCHE0				EQU		0x01		;bumper droit
 
 BROCHE1				EQU		0x02		;bumper gauche
+	
+BROCHE1_2			EQU		0x03		;bumper droit et gauche
 
 ; blinking frequency
 DUREE   			EQU     0x002FFFFF
@@ -99,30 +101,16 @@ __main
 		
 		mov r2, #0x000       					;; pour eteindre LED
 		
-		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper droit
-
-		;ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
-        ;ldr r0, = BROCHE0	
-        ;str r0, [r7]
-		
-		;ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
-        ;ldr r0, = BROCHE0	
-        ;str r0, [r7]     
-		
-		;ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
-		
 		
 		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION bumper gauche
 
 		ldr r7, = GPIO_PORTE_BASE+GPIO_I_PUR	;; Pul_up 
-        ldr r0, = BROCHE1	
+        ldr r0, = BROCHE1_2	
         str r0, [r7]
 		
 		ldr r7, = GPIO_PORTE_BASE+GPIO_O_DEN	;; Enable Digital Function 
-        ldr r0, = BROCHE1	
+        ldr r0, = BROCHE1_2	
         str r0, [r7]     
-		
-		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)  ;; @data Register = @base + (mask<<2) ==> bumper
 		
 
 		
@@ -170,10 +158,10 @@ BG_actif
 		;; Boucle d'attente pour la marche avant
 WAIT	ldr r1, =0xAFFFFF 
 wait1	
-		;ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
-		;ldr r10,[r7]
-		;CMP r10,#0x00
-		;BEQ BD_actif
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+		ldr r10,[r7]
+		CMP r10,#0x00
+		BEQ BD_actif
 		
 		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
 		ldr r10,[r7]
