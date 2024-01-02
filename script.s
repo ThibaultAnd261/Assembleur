@@ -177,7 +177,7 @@ wait1
 		BX	LR
 		
 ;; Boucle d'attente lors la marche arrière
-WAITar	ldr r1, =0x1AFFFF
+WAITar	ldr r1, =0x105FFF
 wait2	
 		; allumer la led broche 4 et 5 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		
@@ -193,7 +193,7 @@ wait2
 			
 ;; Boucle d'attente lors la marche arrière
 WAITtourne	
-		ldr r1, =0xAFFFFF
+		ldr r1, =0x35FFFF
 wait3	
 		subs r1, #1
         bne wait3

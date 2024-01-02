@@ -142,7 +142,8 @@ ARM Macro Assembler    Page 3
    58 00000000         
    59 00000000 00000003 
                        BROCHE1_2
-                               EQU              0x03
+                               EQU              0x03        ;bumper droit et ga
+                                                            uche
    60 00000000         
    61 00000000         ; blinking frequency
    62 00000000 002FFFFF 
@@ -192,13 +193,13 @@ R
    91 00000014 F04F 0030       ldr              r0, = BROCHE4_5
    92 00000018 6030            str              r0, [r6]
    93 0000001A         
-   94 0000001A 4E2E            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DE
 
 
 
 ARM Macro Assembler    Page 4 
 
 
+   94 0000001A 4E2E            ldr              r6, = GPIO_PORTF_BASE+GPIO_O_DE
 N 
                                                             ;; Enable Digital F
                                                             unction 
@@ -257,13 +258,13 @@ N
   130 0000005A E7F0            b                loop
   131 0000005C         
   132 0000005C         BD_actif
-  133 0000005C         
 
 
 
 ARM Macro Assembler    Page 5 
 
 
+  133 0000005C         
   134 0000005C F7FF FFFE       BL               MOTEUR_DROIT_ARRIERE
   135 00000060 F7FF FFFE       BL               MOTEUR_GAUCHE_ARRIERE
   136 00000064 F000 F824       BL               WAITar
@@ -312,7 +313,7 @@ ARM Macro Assembler    Page 5
   177 000000AE 4770            BX               LR
   178 000000B0         
   179 000000B0         ;; Boucle d'attente lors la marche arrière
-  180 000000B0 4910    WAITar  ldr              r1, =0x1AFFFF
+  180 000000B0 4910    WAITar  ldr              r1, =0x105FFF
   181 000000B2         wait2
   182 000000B2         ; allumer la led broche 4 et 5 (BROCHE4_5)
   183 000000B2 F04F 0330       mov              r3, #BROCHE4_5 ;; Allume LED1&2
@@ -322,13 +323,13 @@ ARM Macro Assembler    Page 5
 4_5<<2) 
                                                             ;; @data Register =
                                                              @base + (mask<<2) 
-                                                            ==> LED1
 
 
 
 ARM Macro Assembler    Page 6 
 
 
+                                                            ==> LED1
   185 000000B8 6033            str              r3, [r6]    ;; Allume LED1&2 po
                                                             rtF broche 4&5 : 00
                                                             110000 (contenu de 
@@ -343,7 +344,7 @@ ARM Macro Assembler    Page 6
   193 000000C0         
   194 000000C0         ;; Boucle d'attente lors la marche arrière
   195 000000C0         WAITtourne
-  196 000000C0 4909            ldr              r1, =0xAFFFFF
+  196 000000C0 490D            ldr              r1, =0x35FFFF
   197 000000C2         wait3
   198 000000C2 3901            subs             r1, #1
   199 000000C4 D1FD            bne              wait3
@@ -363,7 +364,8 @@ ARM Macro Assembler    Page 6
               00AFFFFF 
               40024004 
               40024008 
-              001AFFFF 
+              00105FFF 
+              0035FFFF 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\script.d -o.\objects\script.o -I.\RTE\_Target_1 -IC:\Use
 rs\antoi\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include -IC:\Users\
