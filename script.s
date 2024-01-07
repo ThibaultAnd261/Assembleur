@@ -197,7 +197,7 @@ B_actif_depart
 		BL	MOTEUR_GAUCHE_OFF
 		BL	MOTEUR_DROIT_OFF
 		
-		BX	LR
+		b	WAITstart
 
 SW1_actif
 		
@@ -207,7 +207,7 @@ SW1_actif
 		b	SW1_actif
 		
 SW2_actif
-		ldr	r1, =0xAAAAAA
+		ldr	r1, =0xFAAAAA
 		; allumer la led broche 4 et 5 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		
 		ldr r6, = GPIO_PORTF_BASE + (BROCHE4_5<<2)  ;; @data Register = @base + (mask<<2) ==> LED1
