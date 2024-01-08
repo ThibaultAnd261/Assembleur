@@ -120,16 +120,6 @@ __main
 		
 		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION Switcher 1 et 2
 
-		;ldr r8, = GPIO_PORTD_BASE+GPIO_I_PUR	;; Pul_up 
-        ;ldr r0, = BROCHE6_7	
-        ;str r0, [r8]
-		
-		;ldr r8, = GPIO_PORTD_BASE+GPIO_O_DEN	;; Enable Digital Function 
-        ;ldr r0, = BROCHE6_7
-        ;str r0, [r8]
-		
-		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION Switcher 1 et 2
-
 		ldr r7, = GPIO_PORTD_BASE+GPIO_I_PUR	;; Pul_up 
         ldr r0, = BROCHE6_7
         str r0, [r7]
@@ -140,16 +130,6 @@ __main
 		
 		ldr r7, = GPIO_PORTD_BASE + (BROCHE6_7<<2)  ;; @data Register = @base + (mask<<2) ==> Switcher
 		
-		;;----------------------CONF_SWITCHS
-		;LDR R0, =BROCHE6_7							;; Get the value to enable PINS 6 & 7 on PORTD
-		;LDR R12, =GPIO_PORTD_BASE+GPIO_O_DEN			;;
-		;STR R0, [R7]								;; Enable PINS 6 & 7 on PORTD with GPIO_O_DEN		
-		;LDR R12, =GPIO_PORTD_BASE+GPIO_I_PUR			;;
-		;STR R0, [R7]								;; Enable PINS 6 & 7 on PORTD with GPIO_O_PUR
-		;LDR R12, =GPIO_PORTD_BASE+(BROCHE6_7<<2) 	;; Enable Switchs that correspond to PORTD PINS 6 & 7 values
-		;;----------------------END CONF_SWITCHS
-		
-		;vvvvvvvvvvvvvvvvvvvvvvvFin configuration Switcher 
 
 		;phase de mise en grille
 		; Activer les deux moteurs droit et gauche
@@ -204,6 +184,10 @@ BG_actif
 		b	loop
 		
 CELEBRATION
+		; allumer la led broche 4 et 5 (BROCHE4_5)
+		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		
+		ldr r6, = GPIO_PORTF_BASE + (BROCHE4_5<<2)  ;; @data Register = @base + (mask<<2) ==> LED1
+		str r3, [r6]		;; Allume LED1&2 portF broche 4&5 : 00110000 (contenu de r3)
 		BL	MOTEUR_GAUCHE_OFF
 		BL	MOTEUR_DROIT_ON
 		BL	WAITcelebration
