@@ -131,19 +131,20 @@ __main
 		ldr r7, = GPIO_PORTD_BASE + (BROCHE6_7<<2)  ;; @data Register = @base + (mask<<2) ==> Switcher
 		
 
-		;phase de mise en grille
-		; Activer les deux moteurs droit et gauche
+		
 
 PLACEMENT
+		;phase de mise en grille
+		;Activer les deux moteurs droit et gauche
 		BL MOTEUR_INIT
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
 		; Evalbot avance droit devant
 		BL	MOTEUR_DROIT_AVANT
 		BL	MOTEUR_GAUCHE_AVANT
-		BL	WAITmg
+		BL	WAITmg	; entre dans WAITstart ssi bumper activé
 		
-		BL	WAITstart
+		BL	WAITstart	; entre dans loop ssi appui sur switch2
 		
 		b	PLACEMENT
 
@@ -159,31 +160,31 @@ loop
 		BL	MOTEUR_DROIT_AVANT
 		BL	MOTEUR_GAUCHE_AVANT
 		
-		BL	WAIT
+		BL	WAIT	; boucle principale du mode course
 		
 		b	loop
 		
 BD_actif
-		
+		; s'occupe du virage vers la gauche
 		BL	MOTEUR_DROIT_ARRIERE
 		BL	MOTEUR_GAUCHE_ARRIERE
-		BL	WAITar
+		BL	WAITar	;recule avant de tourner
 		BL	MOTEUR_DROIT_OFF
 		BL	MOTEUR_GAUCHE_ARRIERE
-		BL	WAITtourne
+		BL	WAITtourne	;temps du virage
 		b	loop
 		
 BG_actif
-		
+		; s'occupe du virage vers la droite
 		BL	MOTEUR_DROIT_ARRIERE
 		BL	MOTEUR_GAUCHE_ARRIERE
-		BL	WAITar
+		BL	WAITar	;recule avant de tourner
 		BL	MOTEUR_GAUCHE_OFF
 		BL	MOTEUR_DROIT_ARRIERE
-		BL	WAITtourne
+		BL	WAITtourne	;temps du virage
 		b	loop
 		
-CELEBRATION
+CELEBRATION		;rotation répétitive lor de l'appui sur le switch2
 		; allumer la led broche 4 et 5 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		
 		ldr r6, = GPIO_PORTF_BASE + (BROCHE4_5<<2)  ;; @data Register = @base + (mask<<2) ==> LED1
@@ -196,21 +197,21 @@ CELEBRATION
 		BL	WAITcelebration
 		b	CELEBRATION
 		
-B_actif_depart
+B_actif_depart	;attend l'activation de la procédure de départ
 
 		BL	MOTEUR_GAUCHE_OFF
 		BL	MOTEUR_DROIT_OFF
 		
 		b	WAITstart
 
-SW1_actif
+SW1_actif	; met le mode pause
 		
 		BL	MOTEUR_DROIT_OFF
 		BL	MOTEUR_GAUCHE_OFF
 		BL	WAIToff
 		b	SW1_actif
 		
-SW2_actif
+SW2_actif	; fais le décompte avant le départ
 		ldr	r1, =0xFAAAAA
 		; allumer la led broche 4 et 5 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		
@@ -225,7 +226,7 @@ wait4
 WAITcelebration
 		ldr	r1, =0x1CFFFF
 wait6	
-		ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)	;vérifie l'appui sur le switch1
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ	loop
@@ -240,12 +241,12 @@ wait6
 WAITmg
 		ldr r1, =0xAFFFFF 
 wait5	
-		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)	;vérifie l'appui sur le bumper droit
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ B_actif_depart
 		
-		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)	;;vérifie l'appui sur le bumper gauche
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ B_actif_depart
@@ -258,7 +259,7 @@ wait5
 WAITstart
 		ldr r1, =0xAFFFFF 
 wait	
-		ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)	;;vérifie l'appui sur le switch2
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ SW2_actif
@@ -270,22 +271,22 @@ wait
 		;; Boucle d'attente pour la marche avant
 WAIT	ldr r1, =0xFFFFFF 
 wait1	
-		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)	;vérifie l'appui sur le bumper droit
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ BD_actif
 		
-		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)
+		ldr r7, = GPIO_PORTE_BASE + (BROCHE1<<2)	;vérifie l'appui sur le bumper gauche
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ BG_actif
 		
-		ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)	;vérifie l'appui sur le switch1
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ SW1_actif
 		
-		ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)	;vérifie l'appui sur le switch2
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ CELEBRATION
@@ -322,7 +323,7 @@ wait3
 		BX	LR
 		
 WAIToff		
-		ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)	;vérifie l'appui sur le switch1
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ	loop
