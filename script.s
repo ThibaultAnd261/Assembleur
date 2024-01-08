@@ -52,9 +52,9 @@ BROCHE4_5			EQU		0x30		; led1 & led2 sur broche 4 et 5
 
 BROCHE6				EQU 	0x40		; bouton poussoir 1
 
-BROCHE7				EQU		0x80		; bonton poussoir 2
+BROCHE7				EQU		0x80		; bouton poussoir 2
 	
-BROCHE6_7			EQU		0xC0		; bonton poussoir 1 et 2
+BROCHE6_7			EQU		0xC0		; bouton poussoir 1 et 2
 
 BROCHE0				EQU		0x01		;bumper droit
 
@@ -75,7 +75,8 @@ __main
 
 		; ;; Enable the Port F & D peripheral clock 		(p291 datasheet de lm3s9B96.pdf)
 		; ;;									
-		ldr r6, = SYSCTL_PERIPH_GPIO  			;; RCGC2
+		ldr r6, = SYSCTL_PERIPH_GPIO
+		;; RCGC2
         mov r0, #0x00000038  					;; Enable clock sur GPIO D et F où sont branchés les leds (0x28 == 0b101000)
 		; ;;														 									      (GPIO::FEDCBA)
         str r0, [r6]
@@ -129,15 +130,24 @@ __main
 		
 		;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^CONFIGURATION Switcher 1 et 2
 
-		;ldr r7, = GPIO_PORTD_BASE+GPIO_I_PUR	;; Pul_up 
-        ;ldr r0, = BROCHE6_7
-        ;str r0, [r7]
+		ldr r7, = GPIO_PORTD_BASE+GPIO_I_PUR	;; Pul_up 
+        ldr r0, = BROCHE6_7
+        str r0, [r7]
 		
-		;ldr r7, = GPIO_PORTD_BASE+GPIO_O_DEN	;; Enable Digital Function 
-        ;ldr r0, = BROCHE6_7	
-        ;str r0, [r7]     
+		ldr r7, = GPIO_PORTD_BASE+GPIO_O_DEN	;; Enable Digital Function 
+        ldr r0, = BROCHE6_7	
+        str r0, [r7]     
 		
-		;ldr r7, = GPIO_PORTD_BASE + (BROCHE6_7<<2)  ;; @data Register = @base + (mask<<2) ==> Switcher
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE6_7<<2)  ;; @data Register = @base + (mask<<2) ==> Switcher
+		
+		;;----------------------CONF_SWITCHS
+		;LDR R0, =BROCHE6_7							;; Get the value to enable PINS 6 & 7 on PORTD
+		;LDR R12, =GPIO_PORTD_BASE+GPIO_O_DEN			;;
+		;STR R0, [R7]								;; Enable PINS 6 & 7 on PORTD with GPIO_O_DEN		
+		;LDR R12, =GPIO_PORTD_BASE+GPIO_I_PUR			;;
+		;STR R0, [R7]								;; Enable PINS 6 & 7 on PORTD with GPIO_O_PUR
+		;LDR R12, =GPIO_PORTD_BASE+(BROCHE6_7<<2) 	;; Enable Switchs that correspond to PORTD PINS 6 & 7 values
+		;;----------------------END CONF_SWITCHS
 		
 		;vvvvvvvvvvvvvvvvvvvvvvvFin configuration Switcher 
 
@@ -145,6 +155,7 @@ __main
 		; Activer les deux moteurs droit et gauche
 
 PLACEMENT
+		BL MOTEUR_INIT
 		BL	MOTEUR_DROIT_ON
 		BL	MOTEUR_GAUCHE_ON
 		; Evalbot avance droit devant
