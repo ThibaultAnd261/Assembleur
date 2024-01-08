@@ -203,6 +203,15 @@ BG_actif
 		BL	WAITtourne
 		b	loop
 		
+CELEBRATION
+		BL	MOTEUR_GAUCHE_OFF
+		BL	MOTEUR_DROIT_ON
+		BL	WAITcelebration
+		BL	MOTEUR_GAUCHE_ON
+		BL	MOTEUR_DROIT_OFF
+		BL	WAITcelebration
+		b	CELEBRATION
+		
 B_actif_depart
 
 		BL	MOTEUR_GAUCHE_OFF
@@ -227,6 +236,21 @@ wait4
 		subs r1, #1
         bne wait4
 		b	loop
+		
+		;; Boucle d'attente pour la celebration
+WAITcelebration
+		ldr	r1, =0x1CFFFF
+wait6	
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE6<<2)
+		ldr r10,[r7]
+		CMP r10,#0x00
+		BEQ	loop
+		
+		subs r1, #1
+        bne wait6
+		
+		;; retour à la suite du lien de branchement
+		BX	LR
 
 		;; Boucle d'attente pour la mise en grille
 WAITmg
@@ -260,7 +284,7 @@ wait
 		b	WAITstart
 		
 		;; Boucle d'attente pour la marche avant
-WAIT	ldr r1, =0xAFFFFF 
+WAIT	ldr r1, =0xFFFFFF 
 wait1	
 		ldr r7, = GPIO_PORTE_BASE + (BROCHE0<<2)
 		ldr r10,[r7]
@@ -276,6 +300,11 @@ wait1
 		ldr r10,[r7]
 		CMP r10,#0x00
 		BEQ SW1_actif
+		
+		ldr r7, = GPIO_PORTD_BASE + (BROCHE7<<2)
+		ldr r10,[r7]
+		CMP r10,#0x00
+		BEQ CELEBRATION
 
 		subs r1, #1
         bne wait1
@@ -284,7 +313,7 @@ wait1
 		BX	LR
 		
 ;; Boucle d'attente lors la marche arrière
-WAITar	ldr r1, =0x105FFF
+WAITar	ldr r1, =0x0A0FFF
 wait2	
 		; allumer la led broche 4 et 5 (BROCHE4_5)
 		mov r3, #BROCHE4_5		;; Allume LED1&2 portF broche 4&5 : 00110000		
@@ -300,7 +329,7 @@ wait2
 			
 ;; Boucle d'attente lors la marche arrière
 WAITtourne	
-		ldr r1, =0x35FFFF
+		ldr r1, =0x38FFFF
 wait3	
 		subs r1, #1
         bne wait3
